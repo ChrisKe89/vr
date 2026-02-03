@@ -25,7 +25,13 @@
 
 ### Webx_app
 
-- **Create new directory**
-  ```bash
+- **Create new directory and clone repo**
   
+  ```bash
+  mkdir C:\dev\tools
+  cd C:\dev\tools
+  git clone https://github.com/ChrisKe89/vr.git
+  explorer C:\Dev\vr\dist
+  ```
+
 
