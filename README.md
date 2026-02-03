@@ -32,6 +32,7 @@
   cd C:\dev\tools
   git clone https://github.com/ChrisKe89/vr.git
   explorer C:\Dev\vr\dist
+  exit
   ```
 
 
