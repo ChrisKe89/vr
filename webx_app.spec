@@ -1,9 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
+
+_SPEC_DIR = os.getcwd()
+
 
 a = Analysis(
     ['webx_app.py'],
-    pathex=[],
+    pathex=[_SPEC_DIR],
     binaries=[],
     datas=[],
     hiddenimports=[],
