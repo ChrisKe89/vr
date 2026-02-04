@@ -13,7 +13,7 @@ import shutil
 from server_process import HttpServerProcess, build_http_server_command
 
 BASE_DIR = r"C:\C_DRIVE_PROJECT_WIP"
-ACTION_BUTTON_WIDTH = 14
+ACTION_BUTTON_WIDTH = 12
 
 
 class App:
@@ -24,6 +24,7 @@ class App:
         self.output_queue = queue.Queue()
         self.current_ip = ""
         self.selected_name = ""
+        self.version_map = {}
         self.base_dir_var = tk.StringVar(value=BASE_DIR)
         self.port_var = tk.StringVar(value="8443")
         self.status_var = tk.StringVar(value="")
@@ -35,7 +36,7 @@ class App:
 
     def build_ui(self):
         self.root.title("VR Training Server Helper")
-        self.root.minsize(960, 640)
+        self.root.minsize(1020, 720)
         container = ttk.Frame(self.root, padding=14)
         container.pack(fill="both", expand=True)
 
@@ -78,49 +79,49 @@ class App:
 
         action_row = ttk.Frame(control_frame)
         action_row.grid(row=0, column=0, sticky="ew", pady=(0, 8))
-        for i in range(4):
-            action_row.grid_columnconfigure(i, weight=1)
+        action_row.grid_columnconfigure(0, weight=1)
+        action_row.grid_columnconfigure(1, weight=1)
 
-        self.btn_refresh_ip = ttk.Button(
-            action_row,
-            text="Refresh IP",
-            command=self.refresh_ip,
-            width=ACTION_BUTTON_WIDTH,
-        )
-        self.btn_refresh_ip.grid(row=0, column=0, padx=4, sticky="ew")
         self.btn_start = ttk.Button(
             action_row,
             text="Start Server",
             command=self.start_server,
             width=ACTION_BUTTON_WIDTH,
         )
-        self.btn_start.grid(row=0, column=1, padx=4, sticky="ew")
+        self.btn_start.grid(row=0, column=0, padx=4, pady=(0, 6), sticky="ew")
         self.btn_stop = ttk.Button(
             action_row,
             text="Stop Server",
             command=self.stop_server,
             width=ACTION_BUTTON_WIDTH,
         )
-        self.btn_stop.grid(row=0, column=2, padx=4, sticky="ew")
+        self.btn_stop.grid(row=0, column=1, padx=4, pady=(0, 6), sticky="ew")
+        self.btn_refresh_ip = ttk.Button(
+            action_row,
+            text="Refresh IP",
+            command=self.refresh_ip,
+            width=ACTION_BUTTON_WIDTH,
+        )
+        self.btn_refresh_ip.grid(row=1, column=0, padx=4, sticky="ew")
         self.btn_launch = ttk.Button(
             action_row,
             text="Launch Browser",
             command=self.launch_browser,
             width=ACTION_BUTTON_WIDTH,
         )
-        self.btn_launch.grid(row=0, column=3, padx=4, sticky="ew")
+        self.btn_launch.grid(row=1, column=1, padx=4, sticky="ew")
         status_holder = ttk.Frame(control_frame)
-        status_holder.grid(row=1, column=0, sticky="ew", pady=(0, 8))
+        status_holder.grid(row=1, column=0, sticky="ew", pady=(0, 8), padx=4)
         status_holder.grid_columnconfigure(0, weight=1)
         status_holder.grid_columnconfigure(1, weight=1)
 
         ipv4_frame = ttk.LabelFrame(status_holder, text="IPv4", padding=(8, 4))
-        ipv4_frame.grid(row=0, column=0, sticky="ew", padx=(0, 8))
+        ipv4_frame.grid(row=0, column=0, sticky="ew", padx=(0, 4))
         self.ip_label = ttk.Label(ipv4_frame, text="detecting…", font=("Segoe UI", 10))
         self.ip_label.pack(side="left")
 
         port_frame = ttk.LabelFrame(status_holder, text="Port", padding=(8, 4))
-        port_frame.grid(row=0, column=1, sticky="ew")
+        port_frame.grid(row=0, column=1, sticky="ew", padx=(4, 0))
         self.port_entry = ttk.Entry(
             port_frame, textvariable=self.port_var, width=10, justify="center"
         )
@@ -139,35 +140,30 @@ class App:
         install_row = ttk.Frame(control_frame)
         install_row.grid(row=3, column=0, sticky="ew", pady=(0, 8))
         install_row.grid_columnconfigure(0, weight=1)
-        install_row.grid_columnconfigure(1, weight=1)
         self.btn_browse = ttk.Button(
             install_row,
             text="Browse other locations",
             command=self.browse_base_dir,
             width=ACTION_BUTTON_WIDTH,
         )
-        self.btn_browse.grid(row=0, column=0, padx=(0, 8), sticky="ew")
+        self.btn_browse.grid(row=0, column=0, sticky="ew", pady=(0, 6))
         self.btn_install = ttk.Button(
             install_row,
             text="Install Env Variables",
             command=self.install_http_server_cmd,
             width=ACTION_BUTTON_WIDTH,
         )
-        self.btn_install.grid(row=0, column=1, sticky="ew")
-
-        refresh_versions_row = ttk.Frame(control_frame)
-        refresh_versions_row.grid(row=4, column=0, sticky="ew", pady=(0, 8))
-        refresh_versions_row.grid_columnconfigure(0, weight=1)
+        self.btn_install.grid(row=1, column=0, sticky="ew", pady=(0, 6))
         self.btn_refresh_versions = ttk.Button(
-            refresh_versions_row,
+            install_row,
             text="Refresh Available Versions",
             command=self.refresh_versions,
             width=ACTION_BUTTON_WIDTH,
         )
-        self.btn_refresh_versions.grid(row=0, column=0, sticky="ew")
+        self.btn_refresh_versions.grid(row=2, column=0, sticky="ew")
 
         status_row = ttk.Frame(control_frame)
-        status_row.grid(row=5, column=0, sticky="ew", pady=(4, 0))
+        status_row.grid(row=4, column=0, sticky="ew", pady=(4, 0))
         status_row.grid_columnconfigure(0, weight=1)
         ttk.Label(
             status_row,
@@ -188,7 +184,7 @@ class App:
 
         self.log_text = tk.Text(
             log_frame,
-            height=10,
+            height=12,
             wrap="word",
             font=("Consolas", 10),
             bd=0,
@@ -222,19 +218,40 @@ class App:
 
     def load_versions(self):
         self.lb.delete(0, "end")
+        self.version_map = {}
         base_dir = self.base_dir_var.get().strip() or BASE_DIR
         if not os.path.isdir(base_dir):
             self.log(f"Base not found: {base_dir}")
             return
+        self.log("Scanning for WebVRTrainingApp folders...")
         try:
-            entries = sorted([e for e in os.listdir(base_dir)], key=lambda x: x.lower())
+            parents = set()
+            for root, dirnames, _ in os.walk(base_dir):
+                if "WebVRTrainingApp" in dirnames:
+                    parents.add(root)
+                    # Skip walking deeper inside the app folder.
+                    dirnames.remove("WebVRTrainingApp")
         except Exception as e:
             self.log(str(e))
             return
-        for name in entries:
-            full = os.path.join(base_dir, name)
-            if os.path.isdir(full):
-                self.lb.insert("end", name)
+
+        if not parents:
+            self.log("No WebVRTrainingApp folders found under base.")
+            return
+
+        rel_paths = []
+        for parent in parents:
+            rel = os.path.relpath(parent, base_dir)
+            if rel == ".":
+                display = "<root>"
+            else:
+                display = rel
+            self.version_map[display] = rel
+            rel_paths.append(display)
+
+        for display in sorted(rel_paths, key=lambda x: x.lower()):
+            self.lb.insert("end", display)
+        self.log(f"Found {len(rel_paths)} WebVRTrainingApp location(s).")
 
     def on_double(self, event):
         self.on_select(event)
@@ -244,7 +261,8 @@ class App:
         sel = self.lb.curselection()
         if not sel:
             return
-        self.selected_name = self.lb.get(sel[0])
+        display = self.lb.get(sel[0])
+        self.selected_name = self.version_map.get(display, display)
         self.log(f"Selected: {self.selected_name}")
 
     def refresh_versions(self):
@@ -458,7 +476,7 @@ def main():
         root.destroy()
 
     root.protocol("WM_DELETE_WINDOW", handle_close)
-    root.geometry("920x600")
+    root.geometry("1020x720")
     root.mainloop()
 
 
