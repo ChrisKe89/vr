@@ -355,8 +355,9 @@ class App:
         creationflags = 0x08000000 if os.name == "nt" else 0
         capture_output = True
         if os.name == "nt":
-            cmd_line = subprocess.list2cmdline(cmd)
-            cmd = ["cmd.exe", "/c", cmd_line]
+            # Use cmd.exe to run the .cmd shim directly without list2cmdline
+            # to avoid quoting edge cases that can surface as "unknown command".
+            cmd = ["cmd.exe", "/c", *cmd]
             log_cmd = f'(cwd "{serve_dir}") {log_cmd}'
             creationflags = subprocess.CREATE_NO_WINDOW
         self.log(f"Starting: {log_cmd}")

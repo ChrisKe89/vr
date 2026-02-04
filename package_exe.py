@@ -6,6 +6,8 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
+import shutil
+import time
 
 ROOT = Path(__file__).resolve().parent
 SPEC_FILE = ROOT / "webx_app.spec"
@@ -27,6 +29,7 @@ def ensure_pyinstaller_installed() -> None:
 def build_executable() -> None:
     if not SPEC_FILE.exists():
         raise FileNotFoundError(f"{SPEC_FILE} not found.")
+    clean_previous_build()
     cmd = [
         sys.executable,
         "-m",
@@ -38,6 +41,33 @@ def build_executable() -> None:
         str(SPEC_FILE.name),
     ]
     subprocess.run(cmd, check=True, cwd=ROOT)
+
+
+def clean_previous_build() -> None:
+    exe_path = DIST_DIR / f"{EXE_NAME}.exe"
+    folder_path = DIST_DIR / EXE_NAME
+    errors: list[str] = []
+
+    for path in (exe_path, folder_path):
+        if not path.exists():
+            continue
+        try:
+            if path.is_dir():
+                shutil.rmtree(path)
+            else:
+                path.unlink()
+        except PermissionError as exc:
+            errors.append(f"{path}: {exc}")
+        except Exception as exc:
+            errors.append(f"{path}: {exc}")
+
+    if errors:
+        details = "\n".join(errors)
+        raise PermissionError(
+            "Unable to clean previous build output. "
+            "Close any running webx_app.exe and try again.\n"
+            f"{details}"
+        )
 
 
 def find_built_executable() -> Path | None:
